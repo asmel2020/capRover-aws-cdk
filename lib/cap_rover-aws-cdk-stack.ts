@@ -1,24 +1,16 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as lightsail from "aws-cdk-lib/aws-lightsail";
-import * as fs from "fs";
-import * as path from "path";
-import { UserData } from 'aws-cdk-lib/aws-ec2';
 
 export class CapRoverAwsCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+
     super(scope, id, props);
 
-    //path script run instance
-    let initScriptPath = "./script/docker-install.sh";
-
-    const userData = fs.readFileSync(
-      path.join(__dirname, initScriptPath),
-      "utf-8"
-    );
-
-    const instance = new lightsail.CfnInstance(this, "instancia-1", {
-      instanceName: "instancia-1",
+    const instanceName=process.env.INSTANCE_NAME as string
+    console.log(instanceName)
+    const instance = new lightsail.CfnInstance(this,instanceName, {
+      instanceName,
       blueprintId: "amazon_linux_2",
       bundleId: "small_2_0",
       networking: {
@@ -95,8 +87,10 @@ export class CapRoverAwsCdkStack extends cdk.Stack {
       docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover`,
     });
 
-    const ip=new lightsail.CfnStaticIp(this, "ip-1", {
-      staticIpName: "static-ip-1",
+    const staticIpName=process.env.STATIC_IP_NAME as string
+
+    const ip=new lightsail.CfnStaticIp(this,staticIpName, {
+      staticIpName,
       attachedTo: instance.instanceName,
     });
 
