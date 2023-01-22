@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 import * as lightsail from "aws-cdk-lib/aws-lightsail";
 import * as fs from "fs";
 import * as path from "path";
+import { UserData } from 'aws-cdk-lib/aws-ec2';
 
 export class CapRoverAwsCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -15,6 +16,7 @@ export class CapRoverAwsCdkStack extends cdk.Stack {
       path.join(__dirname, initScriptPath),
       "utf-8"
     );
+
     const instance = new lightsail.CfnInstance(this, "instancia-1", {
       instanceName: "instancia-1",
       blueprintId: "amazon_linux_2",

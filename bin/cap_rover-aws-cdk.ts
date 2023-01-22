@@ -12,8 +12,8 @@ const app = new cdk.App();
 
 
 const env={
-  account:'483098611895',
-  region:'us-east-1'
+  account:process.env.AWS_ACCOUNT,
+  region:process.env.AWS_REGION
 }
 
 new CapRoverAwsCdkStack(app, 'CapRoverAwsCdkStack', {
