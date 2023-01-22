@@ -8,7 +8,7 @@ export class CapRoverAwsCdkStack extends cdk.Stack {
     super(scope, id, props);
 
     const instanceName=process.env.INSTANCE_NAME as string
-    console.log(instanceName)
+
     const instance = new lightsail.CfnInstance(this,instanceName, {
       instanceName,
       blueprintId: "amazon_linux_2",
