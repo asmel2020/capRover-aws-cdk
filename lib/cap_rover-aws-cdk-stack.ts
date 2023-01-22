@@ -4,12 +4,28 @@ import * as lightsail from "aws-cdk-lib/aws-lightsail";
 
 export class CapRoverAwsCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
-
     super(scope, id, props);
 
-    const instanceName=process.env.INSTANCE_NAME as string
+    const instanceName = process.env.INSTANCE_NAME as string;
 
-    const instance = new lightsail.CfnInstance(this,instanceName, {
+    // run script init instance
+    const userData: string = `
+    #!/bin/sh
+
+    sudo yum update -y
+    
+    sudo amazon-linux-extras install docker -y
+    
+    sudo service docker start
+    
+    sudo systemctl enable docker
+    
+    sudo usermod -a -G docker ec2-user
+    
+    docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover
+    `;
+
+    const instance = new lightsail.CfnInstance(this, instanceName, {
       instanceName,
       blueprintId: "amazon_linux_2",
       bundleId: "small_2_0",
@@ -71,25 +87,12 @@ export class CapRoverAwsCdkStack extends cdk.Stack {
           },
         ],
       },
-      userData: `
-      #!/bin/sh
-
-      sudo yum update -y
-      
-      sudo amazon-linux-extras install docker -y
-      
-      sudo service docker start
-      
-      sudo systemctl enable docker
-      
-      sudo usermod -a -G docker ec2-user
-      
-      docker run -p 80:80 -p 443:443 -p 3000:3000 -v /var/run/docker.sock:/var/run/docker.sock -v /captain:/captain caprover/caprover`,
+      userData
     });
 
-    const staticIpName=process.env.STATIC_IP_NAME as string
+    const staticIpName = process.env.STATIC_IP_NAME as string;
 
-    const ip=new lightsail.CfnStaticIp(this,staticIpName, {
+    const ip = new lightsail.CfnStaticIp(this, staticIpName, {
       staticIpName,
       attachedTo: instance.instanceName,
     });
